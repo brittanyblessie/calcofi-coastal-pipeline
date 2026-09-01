@@ -33,22 +33,26 @@ coastline turns at Point Conception and colder water takes over.
 | [`03_fetch_weather.ipynb`](notebooks/03_fetch_weather.ipynb) | Calls the API once per lighthouse coordinate, flattens the nested JSON, validates ranges |
 | [`04_merge_and_visualize.ipynb`](notebooks/04_merge_and_visualize.ipynb) | Nearest-lighthouse matching, SQLite load, SQL join, outlier removal, distance filtering, five charts |
 
-## Two problems worth reading about
+## Where the join went wrong
 
-**The nearest match can still be 2,173 miles away.** The first sanity check was confirming
-no inland Lake Tahoe lighthouses appeared in the matches. None did, which looked like proof
-the join was sound. It was not. That check only looks for inland errors. CalCOFI's historical
-sampling runs far down the Baja coast, and those readings were quietly matching to San Diego
-lighthouses. Measuring the actual distance for every row exposed it. A 500-mile cutoff dropped
-4,808 rows, about 7 percent, and pulled the southern edge of the data from latitude 19 up
-to 25. `Distance_Miles` stays in the output so anyone using it can filter tighter.
+### The nearest match can still be 2,173 miles away
 
-**A two-reading cast cannot be checked against its own median.** Temperature outliers are
-caught by comparing each reading to the median of its own cast, which adapts to warm southern
-and cold northern water instead of assuming one valid range for the whole coast. That rule
-breaks on casts holding only two readings, where the median sits exactly halfway between them
-and neither value can be outvoted. Cast 79 held 10.20 °C at the surface and 17.24 °C at ten
-meters, and there is no way to tell which sensor failed. A second rule drops both.
+The first sanity check was confirming no inland Lake Tahoe lighthouses appeared in the
+matches. None did, which looked like proof the join was sound, and it wasn't. That check
+only looks for inland errors. CalCOFI's historical sampling runs far down the Baja coast,
+and those readings were quietly matching to San Diego lighthouses. Measuring the actual
+distance for every row exposed it. A 500-mile cutoff dropped 4,808 rows, about 7 percent,
+and pulled the southern edge of the data from latitude 19 up to 25. `Distance_Miles` stays
+in the output so anyone using it can filter tighter.
+
+### A two-reading cast cannot be checked against its own median
+
+Temperature outliers are caught by comparing each reading to the median of its own cast,
+which adapts to warm southern and cold northern water instead of assuming one valid range
+for the whole coast. That rule breaks on casts holding only two readings, where the median
+sits exactly halfway between them and neither value can be outvoted. Cast 79 held 10.20 °C
+at the surface and 17.24 °C at ten meters, and there is no way to tell which sensor failed.
+A second rule drops both.
 
 ## Running it
 
@@ -91,3 +95,9 @@ Python, pandas, NumPy, Matplotlib, requests, `read_html` for the Wikipedia scrap
 CalCOFI data is published by NOAA, Scripps Institution of Oceanography, and California
 Department of Fish and Wildlife for open scientific use. Lighthouse data comes from Wikipedia
 under CC BY-SA. Weather data comes from OpenWeatherMap under its free tier terms.
+
+## License
+
+Code in this repository is MIT licensed. The data is not mine to license: CalCOFI data is
+published for open scientific use, lighthouse data comes from Wikipedia under CC BY-SA, and
+weather data is subject to OpenWeatherMap's terms.
